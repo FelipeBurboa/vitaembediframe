@@ -457,7 +457,7 @@
         }
         
         const CONFIG = {
-            apiUrl: urlParams.get('apiUrl') || 'http://localhost:3000/api/agents/ventaplayClientAgent/generate',
+            apiUrl: urlParams.get('apiUrl') || 'https://mastraapi.vercel.app/api/agents/ventaplayClientAgent/generate',
             agentName: urlParams.get('agentName') || 'ventaplayClientAgent',
             temperature: parseFloat(urlParams.get('temperature')) || 0.5,
             maxRetries: parseInt(urlParams.get('maxRetries')) || 2,
