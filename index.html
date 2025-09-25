@@ -1,440 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VITA Chat Widget</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asistente Ventaplay Widget</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: transparent;
-            height: 100vh;
-            overflow: hidden;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+          Ubuntu, Cantarell, sans-serif;
+        background: transparent;
+        height: 100vh;
+        overflow: hidden;
+      }
 
-        .chat-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
+      .chat-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
 
-        /* Chat Bubble */
-        .chat-bubble {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+      /* Chat Bubble */
+      .chat-bubble {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f27f41 0%, #0bcde3 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
 
-        .chat-bubble:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        }
+      .chat-bubble:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
 
-        .chat-bubble svg {
-            width: 30px;
-            height: 30px;
-            fill: white;
-        }
+      .chat-bubble svg {
+        width: 25px;
+        height: 25px;
+        fill: white;
+        margin-right: 2px;
+      }
 
-        .chat-bubble.hidden {
-            display: none;
-        }
+      .chat-bubble.hidden {
+        display: none;
+      }
 
-        /* Chat Window */
+      /* Chat Window */
+      .chat-window {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 380px;
+        height: 600px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .chat-window.active {
+        display: flex;
+        animation: slideUp 0.3s ease;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Chat Header */
+      .chat-header {
+        background: linear-gradient(135deg, #f27f41 0%, #0bcde3 100%);
+        color: white;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .chat-header-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .agent-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+
+      .agent-details h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+
+      .agent-status {
+        font-size: 12px;
+        opacity: 0.9;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .close-btn {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .close-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .close-btn svg {
+        width: 16px;
+        height: 16px;
+        fill: white;
+      }
+
+      /* Chat Messages */
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f9fafb;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .message {
+        max-width: 70%;
+        word-wrap: break-word;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .message.user {
+        align-self: flex-end;
+      }
+
+      .message.agent {
+        align-self: flex-start;
+      }
+
+      .message-bubble {
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .message.user .message-bubble {
+  background: #f27f41; /* ✅ Solid brand orange */
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* slight lift */
+}
+
+      .message.agent .message-bubble {
+        background: white;
+        color: #1f2937;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+
+      .message-time {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 4px;
+        padding: 0 4px;
+      }
+
+      .message.user .message-time {
+        text-align: right;
+      }
+
+      /* Typing Indicator */
+      .typing-indicator {
+        display: none;
+        align-self: flex-start;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 16px;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        gap: 4px;
+      }
+
+      .typing-indicator.active {
+        display: flex;
+      }
+
+      .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #9ca3af;
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes typing {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+        }
+        30% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Chat Input */
+      .chat-input-container {
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 12px;
+  align-items: center; /* ✅ Center vertically */
+}
+
+.chat-input-wrapper {
+  flex: 1;
+  display: flex;
+}
+
+.chat-input {
+  width: 100%;
+  padding: 10px 16px; /* ✅ Tighter vertical padding to match button */
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  resize: none;
+  max-height: 120px;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.chat-input:focus {
+  border-color: #f27f41;
+}
+
+.send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f27f41 0%, #0bcde3 100%);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  flex-shrink: 0; /* ✅ Prevent shrink when text grows */
+}
+
+      .send-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+      }
+
+      .send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .send-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: white;
+      }
+
+      /* Welcome Message */
+      .welcome-message {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+      }
+
+      .welcome-message h4 {
+        color: #1f2937;
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      .welcome-message p {
+        font-size: 14px;
+      }
+
+      /* Scrollbar */
+      .chat-messages::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chat-messages::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 3px;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+      }
+
+      /* Mobile Responsiveness */
+      @media (max-width: 480px) {
         .chat-window {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 380px;
-            height: 600px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
+          width: calc(100vw - 40px);
+          height: calc(100vh - 40px);
+          bottom: 20px;
+          right: 20px;
         }
-
-        .chat-window.active {
-            display: flex;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Chat Header */
-        .chat-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .chat-header-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .agent-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .agent-details h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .agent-status {
-            font-size: 12px;
-            opacity: 0.9;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #4ade80;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .close-btn {
-            width: 32px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .close-btn svg {
-            width: 16px;
-            height: 16px;
-            fill: white;
-        }
-
-        /* Chat Messages */
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f9fafb;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .message {
-            max-width: 70%;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message.user {
-            align-self: flex-end;
-        }
-
-        .message.agent {
-            align-self: flex-start;
-        }
-
-        .message-bubble {
-            padding: 12px 16px;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .message.user .message-bubble {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message.agent .message-bubble {
-            background: white;
-            color: #1f2937;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-
-        .message-time {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-top: 4px;
-            padding: 0 4px;
-        }
-
-        .message.user .message-time {
-            text-align: right;
-        }
-
-        /* Typing Indicator */
-        .typing-indicator {
-            display: none;
-            align-self: flex-start;
-            padding: 12px 16px;
-            background: white;
-            border-radius: 16px;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            gap: 4px;
-        }
-
-        .typing-indicator.active {
-            display: flex;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: #9ca3af;
-            border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-10px); }
-        }
-
-        /* Chat Input */
-        .chat-input-container {
-            padding: 16px;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-        }
-
-        .chat-input-wrapper {
-            flex: 1;
-        }
-
-        .chat-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 24px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s ease;
-            resize: none;
-            max-height: 120px;
-            font-family: inherit;
-        }
-
-        .chat-input:focus {
-            border-color: #667eea;
-        }
-
-        .send-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .send-btn:hover:not(:disabled) {
-            transform: scale(1.05);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .send-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: white;
-        }
-
-        /* Welcome Message */
-        .welcome-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #6b7280;
-        }
-
-        .welcome-message h4 {
-            color: #1f2937;
-            margin-bottom: 8px;
-            font-size: 18px;
-        }
-
-        .welcome-message p {
-            font-size: 14px;
-        }
-
-        /* Scrollbar */
-        .chat-messages::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .chat-messages::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 3px;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 480px) {
-            .chat-window {
-                width: calc(100vw - 40px);
-                height: calc(100vh - 40px);
-                bottom: 20px;
-                right: 20px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="chat-container">
-        <!-- Chat Bubble -->
-        <div class="chat-bubble" id="chatBubble">
+      <!-- Chat Bubble -->
+      <div class="chat-bubble" id="chatBubble">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2z"
+          />
+        </svg>
+      </div>
+
+      <!-- Chat Window -->
+      <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <div class="agent-avatar">🤖</div>
+            <div class="agent-details">
+              <h3>Asistente Ventaplay</h3>
+              <div class="agent-status">
+                <span class="status-dot"></span>
+                <span>Online</span>
+              </div>
+            </div>
+          </div>
+          <button class="close-btn" id="closeBtn">
             <svg viewBox="0 0 24 24">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2z"/>
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
             </svg>
+          </button>
         </div>
 
-        <!-- Chat Window -->
-        <div class="chat-window" id="chatWindow">
-            <div class="chat-header">
-                <div class="chat-header-info">
-                    <div class="agent-avatar">🤖</div>
-                    <div class="agent-details">
-                        <h3>VITA Assistant</h3>
-                        <div class="agent-status">
-                            <span class="status-dot"></span>
-                            <span>Online</span>
-                        </div>
-                    </div>
-                </div>
-                <button class="close-btn" id="closeBtn">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="chat-messages" id="chatMessages">
-                <div class="welcome-message">
-                    <h4>Welcome! 👋</h4>
-                    <p>How can I assist you today?</p>
-                </div>
-            </div>
-
-            <div class="typing-indicator" id="typingIndicator">
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-            </div>
-
-            <div class="chat-input-container">
-                <div class="chat-input-wrapper">
-                    <textarea 
-                        class="chat-input" 
-                        id="chatInput" 
-                        placeholder="Type your message..."
-                        rows="1"
-                    ></textarea>
-                </div>
-                <button class="send-btn" id="sendBtn">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                    </svg>
-                </button>
-            </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="welcome-message">
+            <h4>Bienvenido a Asistente Ventaplay 👋</h4>
+            <p>¿En qué puedo ayudarte hoy?</p>
+          </div>
         </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+
+        <div class="chat-input-container">
+          <div class="chat-input-wrapper">
+            <textarea
+              class="chat-input"
+              id="chatInput"
+              placeholder="Escribe tu mensaje..."
+              rows="1"
+            ></textarea>
+          </div>
+          <button class="send-btn" id="sendBtn">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
 
     <script>
-        // Configuration - Can be passed via URL params
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        // REQUIRED: organizacion_id must be provided
-        const organizacionId = urlParams.get('organizacion_id');
-        if (!organizacionId) {
-            document.body.innerHTML = `
+      const urlParams = new URLSearchParams(window.location.search);
+
+      // REQUIRED: organizacion_id must be provided
+      const organizacionId = urlParams.get("organizacion_id");
+      if (!organizacionId) {
+        document.body.innerHTML = `
                 <div style="
                     display: flex;
                     align-items: center;
@@ -453,423 +479,380 @@
                     </div>
                 </div>
             `;
-            throw new Error('Missing required parameter: organizacion_id');
+        throw new Error("Missing required parameter: organizacion_id");
+      }
+
+      const CONFIG = {
+        apiUrl:
+          urlParams.get("apiUrl") ||
+          "https://agents.vita.lat/agents/ventaplayClientAgent/generate",
+        agentName: urlParams.get("agentName") || "ventaplayClientAgent",
+        temperature: parseFloat(urlParams.get("temperature")) || 0.5,
+        maxRetries: parseInt(urlParams.get("maxRetries")) || 2,
+        maxSteps: parseInt(urlParams.get("maxSteps")) || 5,
+        topP: parseFloat(urlParams.get("topP")) || 1,
+        organizacionId: organizacionId,
+        authorization: urlParams.get("auth") || "Bearer Vitafungipore2025!",
+        streaming: urlParams.get("streaming") !== "false",
+      };
+
+      const threadId = `iframe_${Date.now()}_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
+
+      // DOM Elements
+      const chatBubble = document.getElementById("chatBubble");
+      const chatWindow = document.getElementById("chatWindow");
+      const closeBtn = document.getElementById("closeBtn");
+      const chatInput = document.getElementById("chatInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const chatMessages = document.getElementById("chatMessages");
+      const typingIndicator = document.getElementById("typingIndicator");
+
+      let isOpen = false;
+      let isProcessing = false;
+      let messageHistory = [];
+
+      function toggleChat() {
+        isOpen = !isOpen;
+        if (isOpen) {
+          chatBubble.classList.add("hidden");
+          chatWindow.classList.add("active");
+          chatInput.focus();
+          window.parent.postMessage({ type: "ventaplay-chat-opened" }, "*");
+        } else {
+          chatBubble.classList.remove("hidden");
+          chatWindow.classList.remove("active");
+          window.parent.postMessage({ type: "ventaplay-chat-closed" }, "*");
         }
-        
-        const CONFIG = {
-            apiUrl: urlParams.get('apiUrl') || 'https://agents.vita.lat/agents/ventaplayClientAgent/generate',
-            agentName: urlParams.get('agentName') || 'ventaplayClientAgent',
-            temperature: parseFloat(urlParams.get('temperature')) || 0.5,
-            maxRetries: parseInt(urlParams.get('maxRetries')) || 2,
-            maxSteps: parseInt(urlParams.get('maxSteps')) || 5,
-            topP: parseFloat(urlParams.get('topP')) || 1,
-            organizacionId: organizacionId, // Required parameter
-            authorization: urlParams.get('auth') || 'Bearer Vitafungipore2025!',
-            streaming: urlParams.get('streaming') !== 'false' // Default true, set to 'false' to disable
-        };
+      }
 
-        // Generate unique thread ID for this session
-        const threadId = `iframe_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      function closeChat() {
+        isOpen = false;
+        chatBubble.classList.remove("hidden");
+        chatWindow.classList.remove("active");
+        window.parent.postMessage({ type: "ventaplay-chat-closed" }, "*");
+      }
 
-        // DOM Elements
-        const chatBubble = document.getElementById('chatBubble');
-        const chatWindow = document.getElementById('chatWindow');
-        const closeBtn = document.getElementById('closeBtn');
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const chatMessages = document.getElementById('chatMessages');
-        const typingIndicator = document.getElementById('typingIndicator');
-
-        // State
-        let isOpen = false;
-        let isProcessing = false;
-        let messageHistory = [];
-
-        // Toggle chat window
-        function toggleChat() {
-            isOpen = !isOpen;
-            if (isOpen) {
-                chatBubble.classList.add('hidden');
-                chatWindow.classList.add('active');
-                chatInput.focus();
-                // Notify parent window
-                window.parent.postMessage({ type: 'vita-chat-opened' }, '*');
-            } else {
-                chatBubble.classList.remove('hidden');
-                chatWindow.classList.remove('active');
-                // Notify parent window
-                window.parent.postMessage({ type: 'vita-chat-closed' }, '*');
-            }
+      function addMessage(content, isUser = false, messageId = null) {
+        const welcomeMsg = chatMessages.querySelector(".welcome-message");
+        if (welcomeMsg) {
+          welcomeMsg.remove();
         }
 
-        // Close chat
-        function closeChat() {
-            isOpen = false;
-            chatBubble.classList.remove('hidden');
-            chatWindow.classList.remove('active');
-            window.parent.postMessage({ type: 'vita-chat-closed' }, '*');
+        let messageDiv;
+        if (messageId && !isUser) {
+          messageDiv = document.getElementById(messageId);
+          if (messageDiv) {
+            const bubble = messageDiv.querySelector(".message-bubble");
+            if (bubble) {
+              bubble.innerHTML = escapeHtml(content);
+              scrollToBottom();
+              return messageDiv;
+            }
+          }
         }
 
-        // Add message to chat
-        function addMessage(content, isUser = false, messageId = null) {
-            // Remove welcome message if it exists
-            const welcomeMsg = chatMessages.querySelector('.welcome-message');
-            if (welcomeMsg) {
-                welcomeMsg.remove();
-            }
+        messageDiv = document.createElement("div");
+        messageDiv.className = `message ${isUser ? "user" : "agent"}`;
+        if (messageId) {
+          messageDiv.id = messageId;
+        }
 
-            // Check if we're updating an existing message (for streaming)
-            let messageDiv;
-            if (messageId && !isUser) {
-                messageDiv = document.getElementById(messageId);
-                if (messageDiv) {
-                    // Update existing message content
-                    const bubble = messageDiv.querySelector('.message-bubble');
-                    if (bubble) {
-                        bubble.innerHTML = escapeHtml(content);
-                        scrollToBottom();
-                        return messageDiv;
-                    }
-                }
-            }
+        const time = new Date().toLocaleTimeString("es-ES", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
 
-            // Create new message
-            messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user' : 'agent'}`;
-            if (messageId) {
-                messageDiv.id = messageId;
-            }
-            
-            const time = new Date().toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
-                minute: '2-digit',
-                hour12: true 
-            });
-            
-            messageDiv.innerHTML = `
+        messageDiv.innerHTML = `
                 <div class="message-bubble">${escapeHtml(content)}</div>
                 <div class="message-time">${time}</div>
             `;
-            
-            chatMessages.appendChild(messageDiv);
-            scrollToBottom();
-            
-            // Add to history only for complete messages
-            if (!messageId || isUser) {
-                messageHistory.push({
-                    role: isUser ? 'user' : 'assistant',
-                    content: content,
-                    timestamp: new Date().toISOString()
-                });
 
-                // Notify parent window
-                window.parent.postMessage({ 
-                    type: 'vita-chat-message',
-                    message: { role: isUser ? 'user' : 'assistant', content }
-                }, '*');
-            }
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
 
-            return messageDiv;
+        if (!messageId || isUser) {
+          messageHistory.push({
+            role: isUser ? "user" : "assistant",
+            content: content,
+            timestamp: new Date().toISOString(),
+          });
+
+          window.parent.postMessage(
+            {
+              type: "ventaplay-chat-message",
+              message: { role: isUser ? "user" : "assistant", content },
+            },
+            "*"
+          );
         }
 
-        // Escape HTML to prevent XSS
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        return messageDiv;
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function showTyping() {
+        typingIndicator.classList.add("active");
+        scrollToBottom();
+      }
+
+      function hideTyping() {
+        typingIndicator.classList.remove("active");
+      }
+
+      async function sendMessage(message) {
+        if (isProcessing || !message.trim()) return;
+
+        isProcessing = true;
+        sendBtn.disabled = true;
+
+        addMessage(message, true);
+
+        chatInput.value = "";
+        adjustTextareaHeight();
+
+        showTyping();
+
+        try {
+          const payload = {
+            messages: [
+              {
+                role: "user",
+                content: message,
+              },
+            ],
+            runId: CONFIG.agentName,
+            maxRetries: CONFIG.maxRetries,
+            maxSteps: CONFIG.maxSteps,
+            temperature: CONFIG.temperature,
+            topP: CONFIG.topP,
+            runtimeContext: {
+              organizacion_id: CONFIG.organizacionId,
+            },
+            threadId: threadId,
+            resourceId: CONFIG.agentName,
+          };
+
+          const response = await fetch(CONFIG.apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: CONFIG.authorization,
+              Accept: "application/json, text/event-stream",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            hideTyping();
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+          }
+
+          const contentType = response.headers.get("content-type");
+          const isStreaming =
+            CONFIG.streaming &&
+            contentType &&
+            (contentType.includes("text/event-stream") ||
+              contentType.includes("application/x-ndjson") ||
+              contentType.includes("text/plain"));
+
+          hideTyping();
+
+          if (isStreaming && response.body) {
+            await handleStreamingResponse(response);
+          } else {
+            await handleRegularResponse(response);
+          }
+        } catch (error) {
+          console.error("Error sending message:", error);
+          hideTyping();
+          addMessage("Lo siento, ocurrió un error. Intenta nuevamente más tarde.", false);
+
+          window.parent.postMessage(
+            {
+              type: "ventaplay-chat-error",
+              error: error.message,
+            },
+            "*"
+          );
+        } finally {
+          isProcessing = false;
+          sendBtn.disabled = false;
+          chatInput.focus();
         }
+      }
 
-        // Scroll to bottom of chat
-        function scrollToBottom() {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+      async function handleStreamingResponse(response) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let fullMessage = "";
+        const messageId = `msg_${Date.now()}`;
+        let messageDiv = null;
 
-        // Show typing indicator
-        function showTyping() {
-            typingIndicator.classList.add('active');
-            scrollToBottom();
-        }
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        // Hide typing indicator
-        function hideTyping() {
-            typingIndicator.classList.remove('active');
-        }
+            buffer += decoder.decode(value, { stream: true });
 
-        // Send message to VITA API
-        async function sendMessage(message) {
-            if (isProcessing || !message.trim()) return;
-            
-            isProcessing = true;
-            sendBtn.disabled = true;
-            
-            // Add user message
-            addMessage(message, true);
-            
-            // Clear input
-            chatInput.value = '';
-            adjustTextareaHeight();
-            
-            // Show typing indicator
-            showTyping();
-            
-            try {
-                const payload = {
-                    messages: [
-                        {
-                            role: "user",
-                            content: message
-                        }
-                    ],
-                    runId: CONFIG.agentName,
-                    maxRetries: CONFIG.maxRetries,
-                    maxSteps: CONFIG.maxSteps,
-                    temperature: CONFIG.temperature,
-                    topP: CONFIG.topP,
-                    runtimeContext: {
-                        organizacion_id: CONFIG.organizacionId
-                    },
-                    threadId: threadId,
-                    resourceId: CONFIG.agentName
-                };
-                
-                console.log('Sending to VITA:', payload);
-                
-                const response = await fetch(CONFIG.apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': CONFIG.authorization,
-                        'Accept': 'application/json, text/event-stream'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (!response.ok) {
-                    hideTyping();
-                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
-                }
+            const lines = buffer.split("\n");
+            buffer = lines[lines.length - 1];
 
-                // Check if response is streaming
-                const contentType = response.headers.get('content-type');
-                const isStreaming = CONFIG.streaming && contentType && (
-                    contentType.includes('text/event-stream') || 
-                    contentType.includes('application/x-ndjson') ||
-                    contentType.includes('text/plain')
-                );
+            for (let i = 0; i < lines.length - 1; i++) {
+              const line = lines[i].trim();
 
-                hideTyping();
+              if (line.startsWith("data: ")) {
+                const data = line.slice(6);
 
-                if (isStreaming && response.body) {
-                    // Handle streaming response
-                    console.log('Handling streaming response');
-                    await handleStreamingResponse(response);
-                } else {
-                    // Handle regular JSON response
-                    console.log('Handling regular JSON response');
-                    await handleRegularResponse(response);
-                }
-                
-            } catch (error) {
-                console.error('Error sending message:', error);
-                hideTyping();
-                addMessage('Sorry, I encountered an error. Please try again later.', false);
-                
-                // Notify parent window of error
-                window.parent.postMessage({ 
-                    type: 'vita-chat-error',
-                    error: error.message
-                }, '*');
-            } finally {
-                isProcessing = false;
-                sendBtn.disabled = false;
-                chatInput.focus();
-            }
-        }
-
-        // Handle streaming response
-        async function handleStreamingResponse(response) {
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = '';
-            let fullMessage = '';
-            const messageId = `msg_${Date.now()}`;
-            let messageDiv = null;
-
-            try {
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    buffer += decoder.decode(value, { stream: true });
-                    
-                    // Process Server-Sent Events format
-                    const lines = buffer.split('\n');
-                    buffer = lines[lines.length - 1]; // Keep incomplete line in buffer
-
-                    for (let i = 0; i < lines.length - 1; i++) {
-                        const line = lines[i].trim();
-                        
-                        if (line.startsWith('data: ')) {
-                            const data = line.slice(6);
-                            
-                            if (data === '[DONE]') {
-                                // Stream complete
-                                console.log('Stream complete');
-                                if (fullMessage) {
-                                    // Final update to history
-                                    messageHistory.push({
-                                        role: 'assistant',
-                                        content: fullMessage,
-                                        timestamp: new Date().toISOString()
-                                    });
-                                    window.parent.postMessage({ 
-                                        type: 'vita-chat-message',
-                                        message: { role: 'assistant', content: fullMessage }
-                                    }, '*');
-                                }
-                                return;
-                            }
-                            
-                            try {
-                                const parsed = JSON.parse(data);
-                                
-                                // Extract content from various possible formats
-                                let content = '';
-                                if (parsed.delta?.content) {
-                                    content = parsed.delta.content;
-                                } else if (parsed.content) {
-                                    content = parsed.content;
-                                } else if (parsed.text) {
-                                    content = parsed.text;
-                                } else if (parsed.chunk) {
-                                    content = parsed.chunk;
-                                } else if (typeof parsed === 'string') {
-                                    content = parsed;
-                                }
-                                
-                                if (content) {
-                                    fullMessage += content;
-                                    // Update or create message
-                                    messageDiv = addMessage(fullMessage, false, messageId);
-                                }
-                            } catch (e) {
-                                // If not JSON, treat as plain text chunk
-                                if (data && data !== '[DONE]') {
-                                    fullMessage += data;
-                                    messageDiv = addMessage(fullMessage, false, messageId);
-                                }
-                            }
-                        } else if (line && !line.startsWith('event:') && !line.startsWith(':')) {
-                            // Handle plain text streaming (non-SSE format)
-                            fullMessage += line;
-                            messageDiv = addMessage(fullMessage, false, messageId);
-                        }
-                    }
-                }
-
-                // Process any remaining buffer
-                if (buffer.trim()) {
-                    fullMessage += buffer;
-                    messageDiv = addMessage(fullMessage, false, messageId);
-                }
-
-                // Final update to history
-                if (fullMessage) {
+                if (data === "[DONE]") {
+                  if (fullMessage) {
                     messageHistory.push({
-                        role: 'assistant',
-                        content: fullMessage,
-                        timestamp: new Date().toISOString()
+                      role: "assistant",
+                      content: fullMessage,
+                      timestamp: new Date().toISOString(),
                     });
-                    window.parent.postMessage({ 
-                        type: 'vita-chat-message',
-                        message: { role: 'assistant', content: fullMessage }
-                    }, '*');
+                    window.parent.postMessage(
+                      {
+                        type: "ventaplay-chat-message",
+                        message: { role: "assistant", content: fullMessage },
+                      },
+                      "*"
+                    );
+                  }
+                  return;
                 }
-            } catch (error) {
-                console.error('Error processing stream:', error);
-                throw error;
-            }
-        }
 
-        // Handle regular JSON response
-        async function handleRegularResponse(response) {
-            const responseText = await response.text();
-            console.log('VITA Response:', responseText);
-            
-            let vitaResponse;
-            try {
-                vitaResponse = JSON.parse(responseText);
-            } catch (e) {
-                console.error('Failed to parse response:', e);
-                throw new Error('Invalid response format from server');
-            }
-            
-            // Extract message from response (trying multiple paths)
-            let agentMessage = '';
-            if (vitaResponse?.data?.text) {
-                agentMessage = vitaResponse.data.text;
-            } else if (vitaResponse?.message) {
-                agentMessage = vitaResponse.message;
-            } else if (vitaResponse?.text) {
-                agentMessage = vitaResponse.text;
-            } else if (vitaResponse?.result) {
-                agentMessage = vitaResponse.result;
-            } else if (vitaResponse?.response) {
-                agentMessage = vitaResponse.response;
-            } else if (typeof vitaResponse === 'string') {
-                agentMessage = vitaResponse;
-            }
-            
-            if (agentMessage) {
-                addMessage(agentMessage, false);
-            } else {
-                throw new Error('No message in response');
-            }
-        }
+                try {
+                  const parsed = JSON.parse(data);
+                  let content = "";
+                  if (parsed.delta?.content) content = parsed.delta.content;
+                  else if (parsed.content) content = parsed.content;
+                  else if (parsed.text) content = parsed.text;
+                  else if (parsed.chunk) content = parsed.chunk;
+                  else if (typeof parsed === "string") content = parsed;
 
-        // Adjust textarea height based on content
-        function adjustTextareaHeight() {
-            chatInput.style.height = 'auto';
-            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-        }
-
-        // Event Listeners
-        chatBubble.addEventListener('click', toggleChat);
-        closeBtn.addEventListener('click', closeChat);
-        
-        sendBtn.addEventListener('click', () => {
-            const message = chatInput.value.trim();
-            if (message) {
-                sendMessage(message);
-            }
-        });
-        
-        chatInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                const message = chatInput.value.trim();
-                if (message) {
-                    sendMessage(message);
+                  if (content) {
+                    fullMessage += content;
+                    messageDiv = addMessage(fullMessage, false, messageId);
+                  }
+                } catch (e) {
+                  if (data && data !== "[DONE]") {
+                    fullMessage += data;
+                    messageDiv = addMessage(fullMessage, false, messageId);
+                  }
                 }
+              } else if (
+                line &&
+                !line.startsWith("event:") &&
+                !line.startsWith(":")
+              ) {
+                fullMessage += line;
+                messageDiv = addMessage(fullMessage, false, messageId);
+              }
             }
-        });
-        
-        chatInput.addEventListener('input', adjustTextareaHeight);
+          }
 
-        // Listen for messages from parent window
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'vita-open-chat') {
-                if (!isOpen) toggleChat();
-            } else if (event.data.type === 'vita-close-chat') {
-                if (isOpen) closeChat();
-            }
-        });
-        
-        // Initialize
-        console.log('VITA Chat Widget (iframe) initialized with thread:', threadId);
-        
-        // Notify parent that iframe is ready
-        window.parent.postMessage({ type: 'vita-chat-ready' }, '*');
+          if (buffer.trim()) {
+            fullMessage += buffer;
+            messageDiv = addMessage(fullMessage, false, messageId);
+          }
+
+          if (fullMessage) {
+            messageHistory.push({
+              role: "assistant",
+              content: fullMessage,
+              timestamp: new Date().toISOString(),
+            });
+            window.parent.postMessage(
+              {
+                type: "ventaplay-chat-message",
+                message: { role: "assistant", content: fullMessage },
+              },
+              "*"
+            );
+          }
+        } catch (error) {
+          console.error("Error processing stream:", error);
+          throw error;
+        }
+      }
+
+      async function handleRegularResponse(response) {
+        const responseText = await response.text();
+
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch (e) {
+          throw new Error("Invalid response format from server");
+        }
+
+        let agentMessage = "";
+        if (result?.data?.text) agentMessage = result.data.text;
+        else if (result?.message) agentMessage = result.message;
+        else if (result?.text) agentMessage = result.text;
+        else if (result?.result) agentMessage = result.result;
+        else if (result?.response) agentMessage = result.response;
+        else if (typeof result === "string") agentMessage = result;
+
+        if (agentMessage) {
+          addMessage(agentMessage, false);
+        } else {
+          throw new Error("No message in response");
+        }
+      }
+
+      function adjustTextareaHeight() {
+        chatInput.style.height = "auto";
+        chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + "px";
+      }
+
+      chatBubble.addEventListener("click", toggleChat);
+      closeBtn.addEventListener("click", closeChat);
+
+      sendBtn.addEventListener("click", () => {
+        const message = chatInput.value.trim();
+        if (message) {
+          sendMessage(message);
+        }
+      });
+
+      chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          const message = chatInput.value.trim();
+          if (message) {
+            sendMessage(message);
+          }
+        }
+      });
+
+      chatInput.addEventListener("input", adjustTextareaHeight);
+
+      window.addEventListener("message", (event) => {
+        if (event.data.type === "ventaplay-open-chat") {
+          if (!isOpen) toggleChat();
+        } else if (event.data.type === "ventaplay-close-chat") {
+          if (isOpen) closeChat();
+        }
+      });
+
+      console.log("Asistente Ventaplay Widget initialized with thread:", threadId);
+
+      window.parent.postMessage({ type: "ventaplay-chat-ready" }, "*");
     </script>
-</body>
+  </body>
 </html>
